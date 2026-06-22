@@ -60,7 +60,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             
             <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('store')">
-                <img src="V.png" alt="V Logo" class="w-12 h-12 object-contain border border-brand-500/30 rounded-xl p-1 bg-zinc-900/50" onerror="this.src='https://placehold.co/100x100/7c3aed/ffffff?text=V'">
+                <img src="aaaa.png" alt="V Logo" class="w-12 h-12 object-contain border border-brand-500/30 rounded-xl p-1 bg-zinc-900/50" onerror="this.src='https://placehold.co/100x100/7c3aed/ffffff?text=V'">
                 <div>
                     <span class="text-xl font-extrabold tracking-wider block" id="header-store-name">V <span class="text-brand-500">STORE</span></span>
                     <span class="text-xs text-zinc-500 block -mt-1 font-semibold">متجر منتجات FiveM</span>
@@ -521,35 +521,58 @@ function switchView(view) {
         document.getElementById('nav-admin').className = "text-brand-500 font-bold transition-all duration-300";
     }
 }
+        // دالة حفظ البيانات في localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('vstore_products', JSON.stringify(products));
+            localStorage.setItem('vstore_admins', JSON.stringify(admins));
+            localStorage.setItem('vstore_orders', JSON.stringify(orders));
+            localStorage.setItem('vstore_totalSales', JSON.stringify(totalSales));
+            localStorage.setItem('vstore_discountCodes', JSON.stringify(discountCodes));
+        }
+
+        // دالة تحميل البيانات من localStorage
+        function loadFromLocalStorage() {
+            const defaultProducts = [
+                { id: 1, name: "نظام السطو على البنوك المتقدم", price: 24.99, category: "scripts", desc: "سكربت ميثاق وسرقة البنوك تفاعلي بالكامل مع ميني جيمز مميزة.", tag: "حصري", image: "", visible: true },
+                { id: 2, name: "حزمة سيارات الدورية الواقعية LSPD", price: 19.99, category: "cars", desc: "أكثر من 10 سيارات شرطة مجهزة بأرقى التعديلات والإضاءات الحقيقية.", tag: "الأكثر مبيعاً", image: "", visible: true },
+                { id: 3, name: "مقر عصابة الـ MLO الفاخر", price: 34.99, category: "maps", desc: "خريطة مجهزة بالكامل لغرفة اجتماعات عصابة ومخزن سري.", tag: "MLO", image: "", visible: true }
+            ];
+            const defaultAdmins = [
+                { username: "ADX", password: "19375" },
+                { username: "omar", password: "1234" },
+                { username: "mohammed", password: "5678" }
+            ];
+            const defaultDiscountCodes = [
+                { code: "SAVE10", percentage: 10 },
+                { code: "SAVE20", percentage: 20 },
+                { code: "FIRST5", percentage: 5 }
+            ];
+
+            products = JSON.parse(localStorage.getItem('vstore_products')) || defaultProducts;
+            admins = JSON.parse(localStorage.getItem('vstore_admins')) || defaultAdmins;
+            orders = JSON.parse(localStorage.getItem('vstore_orders')) || [];
+            totalSales = parseFloat(localStorage.getItem('vstore_totalSales')) || 0.00;
+            discountCodes = JSON.parse(localStorage.getItem('vstore_discountCodes')) || defaultDiscountCodes;
+        }
+
         // قاعدة البيانات الأساسية للمنتجات
-        let products = [
-            { id: 1, name: "نظام السطو على البنوك المتقدم", price: 24.99, category: "scripts", desc: "سكربت ميثاق وسرقة البنوك تفاعلي بالكامل مع ميني جيمز مميزة.", tag: "حصري", image: "", visible: true },
-            { id: 2, name: "حزمة سيارات الدورية الواقعية LSPD", price: 19.99, category: "cars", desc: "أكثر من 10 سيارات شرطة مجهزة بأرقى التعديلات والإضاءات الحقيقية.", tag: "الأكثر مبيعاً", image: "", visible: true },
-            { id: 3, name: "مقر عصابة الـ MLO الفاخر", price: 34.99, category: "maps", desc: "خريطة مجهزة بالكامل لغرفة اجتماعات عصابة ومخزن سري.", tag: "MLO", image: "", visible: true }
-        ];
-
-        let admins = [
-            { username: "ADX", password: "19375" },
-            { username: "omar", password: "1234" },
-            { username: "mohammed", password: "5678" }
-        ];
-
+        let products = [];
+        let admins = [];
         let currentAdmin = null;
         let cart = [];
         let orders = [];
         let totalSales = 0.00;
-        let discountCodes = [
-            { code: "SAVE10", percentage: 10 },
-            { code: "SAVE20", percentage: 20 },
-            { code: "FIRST5", percentage: 5 }
-        ];
+        let discountCodes = [];
         let currentDiscount = null;
 
         function initApp() {
+            loadFromLocalStorage();
             renderStoreProducts();
             renderAdminProductsTable(products);
             updateStats();
             renderAdminsTable();
+            renderOrdersTable();
+            renderDiscountsTable();
         }
 
         // تحويل الواجهات والتبديل بتأثير الانتقال المتلاشي العالي السلاسة
@@ -717,6 +740,7 @@ function switchView(view) {
                 products.unshift(newProduct);
             }
 
+            saveToLocalStorage();
             resetForm();
             initApp();
         }
@@ -752,6 +776,7 @@ function switchView(view) {
             const index = products.findIndex(p => p.id === id);
             if(index !== -1) {
                 products[index].visible = !products[index].visible;
+                saveToLocalStorage();
                 initApp();
             }
         }
@@ -760,6 +785,7 @@ function switchView(view) {
             if(confirm("هل تريد حذف هذا المنتج نهائياً من القائمة؟")) {
                 products = products.filter(p => p.id !== id);
                 cart = cart.filter(c => c.product.id !== id);
+                saveToLocalStorage();
                 initApp();
             }
         }
@@ -910,6 +936,7 @@ function switchView(view) {
     });
 
     totalSales += finalTotal;
+    saveToLocalStorage();
 
     // 📩 إرسال إلى Discord
     sendToDiscord(orderId, finalTotal, orderItems, currentDiscount, originalTotal);
@@ -1080,6 +1107,7 @@ function sendToDiscord(orderId, total, orderItems, discount, originalTotal) {
             }
 
             admins.push({ username, password });
+            saveToLocalStorage();
             renderAdminsTable();
             e.target.reset();
         }
@@ -1087,6 +1115,7 @@ function sendToDiscord(orderId, total, orderItems, discount, originalTotal) {
         function deleteAdmin(username) {
             if (confirm('هل أنت متأكد من حذف هذا الأدمن؟')) {
                 admins = admins.filter(a => a.username !== username);
+                saveToLocalStorage();
                 renderAdminsTable();
             }
         }
@@ -1125,6 +1154,7 @@ function sendToDiscord(orderId, total, orderItems, discount, originalTotal) {
             }
 
             discountCodes.push({ code, percentage });
+            saveToLocalStorage();
             renderDiscountsTable();
             e.target.reset();
         }
@@ -1132,6 +1162,7 @@ function sendToDiscord(orderId, total, orderItems, discount, originalTotal) {
         function deleteDiscount(code) {
             if (confirm('هل أنت متأكد من حذف هذا كود الخصم؟')) {
                 discountCodes = discountCodes.filter(d => d.code !== code);
+                saveToLocalStorage();
                 renderDiscountsTable();
             }
         }
