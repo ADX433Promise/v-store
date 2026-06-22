@@ -460,6 +460,9 @@ function handleLogin(e) {
     const password = document.getElementById('login-password').value;
     const error = document.getElementById('login-error');
 
+    console.log('Attempting login with:', { username, password });
+    console.log('Available admins:', admins);
+    
     const admin = admins.find(a => a.username === username && a.password === password);
 
     if (admin) {
@@ -553,6 +556,13 @@ function switchView(view) {
             orders = JSON.parse(localStorage.getItem('vstore_orders')) || [];
             totalSales = parseFloat(localStorage.getItem('vstore_totalSales')) || 0.00;
             discountCodes = JSON.parse(localStorage.getItem('vstore_discountCodes')) || defaultDiscountCodes;
+            
+            console.log('Loaded data from localStorage:');
+            console.log('  Products:', products);
+            console.log('  Admins:', admins);
+            console.log('  Orders:', orders);
+            console.log('  Total Sales:', totalSales);
+            console.log('  Discount Codes:', discountCodes);
         }
 
         // قاعدة البيانات الأساسية للمنتجات
@@ -1099,6 +1109,8 @@ function sendToDiscord(orderId, total, orderItems, discount, originalTotal) {
             const username = document.getElementById('new-admin-username').value;
             const password = document.getElementById('new-admin-password').value;
 
+            console.log('Adding new admin:', { username, password });
+
             // Check if username already exists
             const exists = admins.some(a => a.username === username);
             if (exists) {
@@ -1110,6 +1122,9 @@ function sendToDiscord(orderId, total, orderItems, discount, originalTotal) {
             saveToLocalStorage();
             renderAdminsTable();
             e.target.reset();
+            
+            console.log('Admins after adding:', admins);
+            alert('تم إضافة الأدمن بنجاح! الآن يمكن تسجيل الدخول باستخدام الاسم: ' + username + ' وكلمة المرور: ' + password);
         }
 
         function deleteAdmin(username) {
